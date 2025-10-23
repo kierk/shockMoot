@@ -27,7 +27,7 @@ async function generateSignature(token, secret, nonce, time) {
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
 
-// Send command to SwitchBot API using multiple CORS proxy options
+// Send command to SwitchBot API using a reliable CORS proxy
 async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     const time = Math.floor(Date.now() / 1000);
     const nonce = crypto.randomUUID();
@@ -35,51 +35,50 @@ async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     try {
         const signature = await generateSignature(openToken, secretKey, nonce, time);
         
-        // Try multiple CORS proxy options
-        const proxyOptions = [
-            'https://api.allorigins.win/raw?url=',
-            'https://corsproxy.io/?',
-            'https://thingproxy.freeboard.io/fetch/'
-        ];
+        // Use a more reliable CORS proxy that handles POST requests properly
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const targetUrl = 'https://api.switch-bot.com/v1.1/devices/' + deviceId + '/commands';
         
-        const targetUrl = encodeURIComponent('https://api.switch-bot.com/v1.1/devices/' + deviceId + '/commands');
-        
-        for (let i = 0; i < proxyOptions.length; i++) {
-            try {
-                const proxyUrl = proxyOptions[i];
-                const fullUrl = proxyUrl + targetUrl;
-                
-                const response = await fetch(fullUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': openToken,
-                        'sign': signature,
-                        'nonce': nonce,
-                        't': time.toString(),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        command: 'press',
-                        parameter: 'default',
-                        commandType: 'command'
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    return { success: true, data: data };
-                }
-            } catch (proxyError) {
-                console.log(`Proxy ${i + 1} failed, trying next...`);
-                if (i === proxyOptions.length - 1) {
-                    throw proxyError;
-                }
-            }
+        // First, try to enable CORS proxy (this might require user interaction)
+        try {
+            await fetch('https://cors-anywhere.herokuapp.com/corsdemo');
+        } catch (e) {
+            console.log('CORS proxy might need activation');
         }
         
-        return { success: false, error: 'All CORS proxies failed' };
+        const response = await fetch(proxyUrl + targetUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': openToken,
+                'sign': signature,
+                'nonce': nonce,
+                't': time.toString(),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                command: 'press',
+                parameter: 'default',
+                commandType: 'command'
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            return { success: true, data: data };
+        } else {
+            const errorText = await response.text();
+            return { success: false, error: `API Error: ${response.status} - ${errorText}` };
+        }
         
     } catch (error) {
+        // If CORS proxy fails, provide instructions for manual setup
+        if (error.message.includes('CORS') || error.message.includes('blocked')) {
+            return { 
+                success: false, 
+                error: 'CORS Error: Please visit https://cors-anywhere.herokuapp.com/corsdemo and click "Request temporary access to the demo server", then refresh this page and try again.' 
+            };
+        }
         return { success: false, error: error.message };
     }
 }

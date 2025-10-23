@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Setup Instructions - ShockMoot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #ff6b6b; }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4ecdc4;
+            border-radius: 5px;
+        }
+        .important {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            border: 1px solid #ffeaa7;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .button {
+            background: #4ecdc4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #45b7b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 CORS Setup for ShockMoot</h1>
+        
+        <p>The SwitchBot API doesn't allow direct browser requests due to CORS restrictions. Here are your options:</p>
+        
+        <div class="step important">
+            <h3>🚀 Quick Fix (Recommended)</h3>
+            <p><strong>Install a CORS browser extension:</strong></p>
+            <ol>
+                <li>Install <strong>"CORS Unblock"</strong> or <strong>"CORS Everywhere"</strong> from your browser's extension store</li>
+                <li>Enable the extension for your ShockMoot page</li>
+                <li>Refresh the page and try again</li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <h3>🔑 Alternative: Enable CORS Proxy</h3>
+            <p>If you prefer not to use browser extensions:</p>
+            <ol>
+                <li>Visit: <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank">https://cors-anywhere.herokuapp.com/corsdemo</a></li>
+                <li>Click <strong>"Request temporary access to the demo server"</strong></li>
+                <li>Return to your ShockMoot page and try again</li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <h3>💻 Local Development</h3>
+            <p>For testing without CORS issues:</p>
+            <ol>
+                <li>Download the ShockMoot files to your computer</li>
+                <li>Open terminal/command prompt in the folder</li>
+                <li>Run: <code>python -m http.server 8000</code></li>
+                <li>Visit: <code>http://localhost:8000</code></li>
+            </ol>
+        </div>
+        
+        <div class="step important">
+            <h3>⚠️ Why This Happens</h3>
+            <p>SwitchBot's API is designed for server-side applications and doesn't include CORS headers for browser requests. This is a security feature to prevent unauthorized access.</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="index.html" class="button">← Back to ShockMoot</a>
+            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" class="button">Enable CORS Proxy</a>
+        </div>
+    </div>
+</body>
+</html>
