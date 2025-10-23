@@ -81,7 +81,21 @@ This application uses the SwitchBot API v1.1 to send commands to your devices. T
 
 1. **API Authentication Failed**: Double-check your Secret Key and Open Token
 2. **Device Not Found**: Verify your Device ID is correct
-3. **CORS Errors**: The app should work with SwitchBot's API, but if you encounter issues, try using a different browser or check your network settings
+3. **CORS Errors**: SwitchBot API doesn't allow direct browser requests. The app includes multiple CORS proxy fallbacks, but if you still encounter issues:
+
+   **Solution 1: Browser Extension**
+   - Install "CORS Unblock" or "CORS Everywhere" browser extension
+   - Enable it for your domain
+   - Refresh the page and try again
+
+   **Solution 2: Alternative Proxies**
+   - The app automatically tries multiple CORS proxies
+   - If all fail, the error message will suggest using a browser extension
+
+   **Solution 3: Local Development**
+   - Run a local server: `python -m http.server 8000`
+   - Access via `http://localhost:8000`
+   - This bypasses some CORS restrictions
 
 ### Getting Help
 

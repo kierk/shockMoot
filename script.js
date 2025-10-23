@@ -27,7 +27,7 @@ async function generateSignature(token, secret, nonce, time) {
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
 
-// Send command to SwitchBot API
+// Send command to SwitchBot API using multiple CORS proxy options
 async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     const time = Math.floor(Date.now() / 1000);
     const nonce = crypto.randomUUID();
@@ -35,29 +35,50 @@ async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     try {
         const signature = await generateSignature(openToken, secretKey, nonce, time);
         
-        const response = await fetch('https://api.switch-bot.com/v1.1/devices/' + deviceId + '/commands', {
-            method: 'POST',
-            headers: {
-                'Authorization': openToken,
-                'sign': signature,
-                'nonce': nonce,
-                't': time.toString(),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                command: 'press',
-                parameter: 'default',
-                commandType: 'command'
-            })
-        });
+        // Try multiple CORS proxy options
+        const proxyOptions = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://thingproxy.freeboard.io/fetch/'
+        ];
         
-        if (response.ok) {
-            const data = await response.json();
-            return { success: true, data: data };
-        } else {
-            const errorData = await response.json();
-            return { success: false, error: errorData.message || 'API request failed' };
+        const targetUrl = encodeURIComponent('https://api.switch-bot.com/v1.1/devices/' + deviceId + '/commands');
+        
+        for (let i = 0; i < proxyOptions.length; i++) {
+            try {
+                const proxyUrl = proxyOptions[i];
+                const fullUrl = proxyUrl + targetUrl;
+                
+                const response = await fetch(fullUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': openToken,
+                        'sign': signature,
+                        'nonce': nonce,
+                        't': time.toString(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: 'press',
+                        parameter: 'default',
+                        commandType: 'command'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { success: true, data: data };
+                }
+            } catch (proxyError) {
+                console.log(`Proxy ${i + 1} failed, trying next...`);
+                if (i === proxyOptions.length - 1) {
+                    throw proxyError;
+                }
+            }
         }
+        
+        return { success: false, error: 'All CORS proxies failed' };
+        
     } catch (error) {
         return { success: false, error: error.message };
     }
@@ -103,7 +124,12 @@ async function activateSwitchBot() {
     if (result.success) {
         showResult('⚡ Shock delivered successfully! ⚡', 'success');
     } else {
-        showResult(`Error: ${result.error}`, 'error');
+        // Provide helpful error message for CORS issues
+        if (result.error.includes('CORS') || result.error.includes('proxy')) {
+            showResult(`CORS Error: Try using a browser extension like "CORS Unblock" or "CORS Everywhere" to bypass this restriction. Error: ${result.error}`, 'error');
+        } else {
+            showResult(`Error: ${result.error}`, 'error');
+        }
     }
     
     // Re-enable button
