@@ -1,0 +1,19 @@
+{
+  "name": "shockmoot",
+  "version": "1.0.0",
+  "description": "SwitchBot Remote Controller with dramatic activation sequence",
+  "main": "index.html",
+  "scripts": {
+    "start": "node proxy-server.js",
+    "dev": "node proxy-server.js",
+    "serve": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "cors": "^2.8.5"
+  },
+  "keywords": ["switchbot", "iot", "smart-home", "automation"],
+  "author": "ShockMoot",
+  "license": "MIT"
+}

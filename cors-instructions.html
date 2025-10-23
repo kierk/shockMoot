@@ -80,13 +80,25 @@
         </div>
         
         <div class="step">
-            <h3>💻 Local Development</h3>
-            <p>For testing without CORS issues:</p>
+            <h3>💻 Local Development with Proxy</h3>
+            <p>For testing without CORS issues using a local proxy server:</p>
             <ol>
-                <li>Download the ShockMoot files to your computer</li>
-                <li>Open terminal/command prompt in the folder</li>
+                <li>Install Node.js from <a href="https://nodejs.org" target="_blank">nodejs.org</a></li>
+                <li>Open terminal/command prompt in the ShockMoot folder</li>
+                <li>Run: <code>npm install</code></li>
+                <li>Run: <code>npm start</code></li>
+                <li>Visit: <code>http://localhost:3000</code></li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <h3>🐍 Simple Local Server</h3>
+            <p>Alternative local testing method:</p>
+            <ol>
+                <li>Open terminal/command prompt in the ShockMoot folder</li>
                 <li>Run: <code>python -m http.server 8000</code></li>
                 <li>Visit: <code>http://localhost:8000</code></li>
+                <li>Note: You'll still need a CORS extension for this method</li>
             </ol>
         </div>
         

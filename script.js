@@ -27,7 +27,7 @@ async function generateSignature(token, secret, nonce, time) {
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
 
-// Send command to SwitchBot API using a reliable CORS proxy
+// Send command to SwitchBot API with multiple fallback options
 async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     const time = Math.floor(Date.now() / 1000);
     const nonce = crypto.randomUUID();
@@ -35,50 +35,51 @@ async function sendSwitchBotCommand(secretKey, openToken, deviceId) {
     try {
         const signature = await generateSignature(openToken, secretKey, nonce, time);
         
-        // Use a more reliable CORS proxy that handles POST requests properly
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const targetUrl = 'https://api.switch-bot.com/v1.1/devices/' + deviceId + '/commands';
+        // Try multiple API endpoints in order of preference
+        const endpoints = [
+            // Local proxy server (if running)
+            `http://localhost:3000/api/devices/${deviceId}/commands`,
+            // Direct API call (will likely fail due to CORS)
+            `https://api.switch-bot.com/v1.1/devices/${deviceId}/commands`
+        ];
         
-        // First, try to enable CORS proxy (this might require user interaction)
-        try {
-            await fetch('https://cors-anywhere.herokuapp.com/corsdemo');
-        } catch (e) {
-            console.log('CORS proxy might need activation');
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': openToken,
+                        'sign': signature,
+                        'nonce': nonce,
+                        't': time.toString(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: 'press',
+                        parameter: 'default',
+                        commandType: 'command'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { success: true, data: data };
+                } else {
+                    console.log(`Endpoint ${endpoint} failed with status: ${response.status}`);
+                }
+            } catch (endpointError) {
+                console.log(`Endpoint ${endpoint} failed:`, endpointError.message);
+                continue;
+            }
         }
         
-        const response = await fetch(proxyUrl + targetUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': openToken,
-                'sign': signature,
-                'nonce': nonce,
-                't': time.toString(),
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                command: 'press',
-                parameter: 'default',
-                commandType: 'command'
-            })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            return { success: true, data: data };
-        } else {
-            const errorText = await response.text();
-            return { success: false, error: `API Error: ${response.status} - ${errorText}` };
-        }
+        // If all endpoints fail, provide helpful error message
+        return { 
+            success: false, 
+            error: 'CORS Error: Unable to connect to SwitchBot API. Please try one of these solutions:\n\n1. Install "CORS Unblock" browser extension and enable it\n2. Run the local proxy server: npm start\n3. Test locally: python -m http.server 8000' 
+        };
         
     } catch (error) {
-        // If CORS proxy fails, provide instructions for manual setup
-        if (error.message.includes('CORS') || error.message.includes('blocked')) {
-            return { 
-                success: false, 
-                error: 'CORS Error: Please visit https://cors-anywhere.herokuapp.com/corsdemo and click "Request temporary access to the demo server", then refresh this page and try again.' 
-            };
-        }
         return { success: false, error: error.message };
     }
 }
