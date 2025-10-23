@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShockMoot - SwitchBot Controller</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ ShockMoot ⚡</h1>
+            <p>SwitchBot Remote Controller</p>
+        </header>
+
+        <div class="form-container">
+            <div class="input-group">
+                <label for="secretKey">Secret Key:</label>
+                <div class="password-input">
+                    <input type="password" id="secretKey" placeholder="Enter your Secret Key">
+                    <button type="button" class="toggle-password" onclick="togglePassword('secretKey')">👁️</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="openToken">Open Token:</label>
+                <div class="password-input">
+                    <input type="password" id="openToken" placeholder="Enter your Open Token">
+                    <button type="button" class="toggle-password" onclick="togglePassword('openToken')">👁️</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="deviceId">Device ID:</label>
+                <input type="text" id="deviceId" placeholder="Enter your Device ID">
+            </div>
+
+            <button id="activateBtn" class="activate-button" onclick="activateSwitchBot()">
+                Activate SwitchBot
+            </button>
+        </div>
+
+        <div id="countdown" class="countdown hidden">
+            <div class="countdown-number">5</div>
+            <div class="countdown-text">Preparing activation...</div>
+        </div>
+
+        <div id="shock" class="shock hidden">
+            <div class="shock-text">⚡ Initiating Shock ⚡</div>
+            <div class="electricity-animation">
+                <div class="bolt bolt-1">⚡</div>
+                <div class="bolt bolt-2">⚡</div>
+                <div class="bolt bolt-3">⚡</div>
+                <div class="bolt bolt-4">⚡</div>
+                <div class="bolt bolt-5">⚡</div>
+            </div>
+        </div>
+
+        <div id="result" class="result hidden">
+            <div class="result-message"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
